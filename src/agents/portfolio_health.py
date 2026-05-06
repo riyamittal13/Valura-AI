@@ -1,35 +1,58 @@
-# def portfolio_health_agent(user_query: str):
-#     return {
-#         "response": "This is your portfolio health summary (dummy for now)"
-#     }
+def portfolio_health_agent(user_data=None):
+    """
+    Basic portfolio health analysis.
+    Uses dummy data if no user_data provided.
+    """
 
+    # ---------------- SAMPLE PORTFOLIO ----------------
+    portfolio = [
+        {"ticker": "AAPL", "weight": 0.45},
+        {"ticker": "MSFT", "weight": 0.25},
+        {"ticker": "TSLA", "weight": 0.15},
+        {"ticker": "NVDA", "weight": 0.10},
+        {"ticker": "CASH", "weight": 0.05},
+    ]
 
-def portfolio_health_agent(user_query: str):
-    
-    # Dummy portfolio (we will improve later)
-    portfolio = {
-        "AAPL": 50,
-        "TSLA": 30,
-        "NVDA": 20
-    }
+    response = []
 
-    # Calculate concentration
-    top_stock = max(portfolio, key=portfolio.get)
-    top_value = portfolio[top_stock]
+    # ---------------- 1. CONCENTRATION RISK ----------------
+    largest = max(portfolio, key=lambda x: x["weight"])
 
-    if top_value > 50:
-        risk = "high"
-    elif top_value > 30:
-        risk = "medium"
+    if largest["weight"] > 0.4:
+        response.append(
+            f"⚠️ High concentration risk: {largest['ticker']} makes up {int(largest['weight']*100)}% of your portfolio."
+        )
     else:
-        risk = "low"
+        response.append("✅ No major concentration risk detected.")
 
+    # ---------------- 2. DIVERSIFICATION ----------------
+    if len(portfolio) < 5:
+        response.append("⚠️ Your portfolio is not well diversified (too few assets).")
+    else:
+        response.append("✅ Portfolio has a reasonable number of assets.")
+
+    # ---------------- 3. TECH HEAVY CHECK ----------------
+    tech_stocks = {"AAPL", "MSFT", "NVDA", "GOOGL", "META"}
+    tech_weight = sum(p["weight"] for p in portfolio if p["ticker"] in tech_stocks)
+
+    if tech_weight > 0.6:
+        response.append("⚠️ Portfolio is heavily tilted towards tech sector.")
+    else:
+        response.append("✅ Sector allocation looks balanced.")
+
+    # ---------------- 4. GENERAL INSIGHT ----------------
+    response.append("💡 Consider rebalancing to reduce risk and improve diversification.")
+
+    # ---------------- 5. DISCLAIMER ----------------
+    response.append("⚠️ This is not financial advice.")
+
+    # return "\n".join(response)
+    # return {
+    # "response": "\n".join(response)
+    # }
     return {
-        "concentration_risk": {
-            "top_stock": top_stock,
-            "percentage": top_value,
-            "risk_level": risk
-        },
-        "observation": f"You have a high allocation in {top_stock}. Consider diversification.",
-        "disclaimer": "This is not financial advice."
+        "agent": "portfolio_health",
+        "data": {
+            "response": "\n".join(response)
+        }
     }
